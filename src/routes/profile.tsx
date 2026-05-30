@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ChevronRight, MapPin, CreditCard, Bell, Gift, HelpCircle,
   Shield, Settings, LogOut, Wallet, Heart, Star,
@@ -42,6 +42,8 @@ const sections: { title: string; items: { label: string; icon: typeof MapPin; hi
 ];
 
 function Profile() {
+  const navigate = useNavigate();
+  const handleSignOut = () => navigate({ to: "/landing" });
   return (
     <div className="min-h-screen bg-background pb-28">
       <header className="px-5 pt-6 pb-4">
@@ -122,7 +124,10 @@ function Profile() {
       ))}
 
       <section className="px-5 pt-6">
-        <button className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm font-semibold text-destructive shadow-soft hover:bg-muted">
+        <button
+          onClick={handleSignOut}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm font-semibold text-destructive shadow-soft hover:bg-muted"
+        >
           <LogOut className="h-4 w-4" />
           Sign out
         </button>

@@ -43,7 +43,13 @@ const sections: { title: string; items: { label: string; icon: typeof MapPin; hi
 
 function Profile() {
   const navigate = useNavigate();
-  const handleSignOut = () => navigate({ to: "/landing" });
+  const handleSignOut = () => {
+    try {
+      localStorage.removeItem("gf_role");
+      localStorage.removeItem("gf_email");
+    } catch {/* ignore */}
+    navigate({ to: "/" });
+  };
   return (
     <div className="min-h-screen bg-background pb-28">
       <header className="px-5 pt-6 pb-4">

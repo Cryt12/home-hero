@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Wrench, Brush, Droplets, Zap, Wind, Refrigerator, Truck, Car, Hammer, Bug,
-  Sparkles, ShieldCheck, Clock, Star, ArrowRight, CheckCircle2,
+  Wrench, Sparkles, ShieldCheck, Clock, Star, ArrowRight, CheckCircle2,
 } from "lucide-react";
+import { useContent, SERVICE_ICONS } from "@/lib/content-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,18 +16,6 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const services = [
-  { name: "Cleaning", icon: Brush, tint: "oklch(0.94 0.04 148)" },
-  { name: "Plumbing", icon: Droplets, tint: "oklch(0.94 0.04 220)" },
-  { name: "Electrical", icon: Zap, tint: "oklch(0.95 0.05 90)" },
-  { name: "AC Repair", icon: Wind, tint: "oklch(0.94 0.04 200)" },
-  { name: "Appliance", icon: Refrigerator, tint: "oklch(0.94 0.04 300)" },
-  { name: "Delivery", icon: Truck, tint: "oklch(0.95 0.05 60)" },
-  { name: "Car Wash", icon: Car, tint: "oklch(0.94 0.04 180)" },
-  { name: "Handyman", icon: Hammer, tint: "oklch(0.94 0.05 40)" },
-  { name: "Pest Control", icon: Bug, tint: "oklch(0.94 0.04 130)" },
-];
-
 const perks = [
   { icon: ShieldCheck, title: "Verified pros", desc: "Background-checked and rated by neighbors." },
   { icon: Clock, title: "On-demand", desc: "Book now or schedule for later in seconds." },
@@ -35,6 +23,9 @@ const perks = [
 ];
 
 function Landing() {
+  const { content } = useContent();
+  const { services, reviews, heroImages } = content;
+
   return (
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
@@ -55,30 +46,48 @@ function Landing() {
       </nav>
 
       <header className="gradient-primary px-5 pb-16 pt-12 text-primary-foreground">
-        <div className="mx-auto max-w-6xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5" /> Trusted by 50,000+ homes
+        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5" /> Trusted by 50,000+ homes
+            </div>
+            <h1 className="mt-4 text-4xl font-extrabold leading-tight md:text-5xl">
+              Home services, on demand.
+            </h1>
+            <p className="mt-3 max-w-xl text-base opacity-90">
+              Cleaning, plumbing, electrical, AC and more — book a verified pro in minutes.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-soft transition hover:brightness-95"
+              >
+                Get started <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="#services"
+                className="inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white/25"
+              >
+                Browse services
+              </a>
+            </div>
           </div>
-          <h1 className="mt-4 max-w-2xl text-4xl font-extrabold leading-tight md:text-5xl">
-            Home services, on demand.
-          </h1>
-          <p className="mt-3 max-w-xl text-base opacity-90">
-            Cleaning, plumbing, electrical, AC and more — book a verified pro in minutes.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-soft transition hover:brightness-95"
-            >
-              Get started <ArrowRight className="h-4 w-4" />
-            </Link>
-            <a
-              href="#services"
-              className="inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white/25"
-            >
-              Browse services
-            </a>
-          </div>
+
+          {heroImages.length > 0 && (
+            <div className="grid grid-cols-2 gap-3">
+              {heroImages.slice(0, 4).map((img, i) => (
+                <img
+                  key={img.id}
+                  src={img.url}
+                  alt={img.alt}
+                  loading="lazy"
+                  className={`h-40 w-full rounded-2xl object-cover shadow-float md:h-48 ${
+                    i % 2 === 1 ? "translate-y-4" : ""
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </header>
 
@@ -91,21 +100,24 @@ function Landing() {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 md:grid-cols-5">
-            {services.map(({ name, icon: Icon, tint }) => (
-              <Link
-                key={name}
-                to="/login"
-                className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-background p-4 transition hover:shadow-soft active:scale-95"
-              >
-                <span
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110"
-                  style={{ backgroundColor: tint }}
+            {services.map(({ id, name, icon, tint }) => {
+              const Icon = SERVICE_ICONS[icon] ?? Wrench;
+              return (
+                <Link
+                  key={id}
+                  to="/login"
+                  className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-background p-4 transition hover:shadow-soft active:scale-95"
                 >
-                  <Icon className="h-6 w-6 text-foreground/80" />
-                </span>
-                <span className="text-xs font-medium text-foreground/80">{name}</span>
-              </Link>
-            ))}
+                  <span
+                    className="flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110"
+                    style={{ backgroundColor: tint }}
+                  >
+                    <Icon className="h-6 w-6 text-foreground/80" />
+                  </span>
+                  <span className="text-xs font-medium text-foreground/80">{name}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -129,7 +141,7 @@ function Landing() {
           <h2 className="text-2xl font-bold">How it works</h2>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {[
-              { step: "1", title: "Pick a service", desc: "Choose from 9+ home service categories." },
+              { step: "1", title: "Pick a service", desc: "Choose from our home service categories." },
               { step: "2", title: "Match a pro", desc: "We connect you with the nearest verified pro." },
               { step: "3", title: "Sit back", desc: "Track in real-time and pay securely in-app." },
             ].map((s) => (
@@ -144,6 +156,29 @@ function Landing() {
           </div>
         </div>
       </section>
+
+      {reviews.length > 0 && (
+        <section className="mx-auto max-w-6xl px-5 py-16">
+          <h2 className="text-2xl font-bold">Loved by neighbors</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Real stories from real GrabFix customers.</p>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {reviews.map((r) => (
+              <div key={r.id} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+                <div className="flex items-center gap-1 text-primary">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${i < r.rating ? "fill-primary" : "opacity-30"}`}
+                    />
+                  ))}
+                </div>
+                <p className="mt-3 text-sm text-foreground/90">"{r.text}"</p>
+                <p className="mt-3 text-xs font-semibold text-muted-foreground">— {r.name}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="px-5 pb-20 pt-16">
         <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-foreground p-8 text-background shadow-float md:p-12">
